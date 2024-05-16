@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const axios = require("axios");
+const fs = require("fs");
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -10,7 +11,13 @@ require('dotenv').config();
 
 
 function healthCheckLogger(req, res, next) {
-    console.log(`Health Check - Timestamp: ${new Date().toISOString()}, URL: ${req.originalUrl}`);
+    const logMessage = `Health Check - Timestamp: ${new Date().toISOString()}, URL: ${req.originalUrl
+        }`;
+    fs.appendFile("health-check.log", logMessage + "\n", (err) => {
+        if (err) {
+            console.error("Error writing to health-check.log:", err);
+        }
+    });
     next();
 }
 
@@ -41,6 +48,10 @@ app.get("/health-check", healthCheckLogger, async (req, res) => {
         {
             url: process.env.ORDER_SERVICE_URL,
             name: "ORDER SERVICE",
+        },
+        {
+            url: process.env.USER_SERVICE_URL,
+            name: "USER SERVICE",
         },
     ];
 
